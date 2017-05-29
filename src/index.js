@@ -26,6 +26,8 @@ const colors = [
 
 const loadDependencyGraph = (pkgToLoad) => {
 
+    toggleLoader(true)
+
     return ajaxJson(`npm/${pkgToLoad}`)
         .then(packagesTree => {
 
@@ -72,9 +74,12 @@ const loadDependencyGraph = (pkgToLoad) => {
                 }
             })
 
+            network.on('doubleClick', ({ nodes }) => nodes.length && loadDependencyGraph(nodes[0]))
+
             return new Promise(function (resolve) {
                 network.on('stabilizationIterationsDone', resolve)
             })
+                .then(() => toggleLoader(false))
         })
 }
 
@@ -89,7 +94,5 @@ document.getElementById('submit')
     .addEventListener('click', e => {
         e.preventDefault()
 
-        toggleLoader(true)
         loadDependencyGraph(search.value)
-            .then(() => toggleLoader(false))
     })
