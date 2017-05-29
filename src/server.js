@@ -21,27 +21,10 @@ const removeExtraFields = pick([
     'version'
 ])
 
-const packageCache = new Map()
-
 const loadPackage = (packageName, version) => {
 
-    const packageKey = packageName + version
-
-    if (packageCache.has(packageKey)) {
-        const cachedPkg = packageCache.get(packageKey)
-
-        return cachedPkg.then ? cachedPkg : Promise.resolve(cachedPkg)
-    }
-
-    const loadPromise = getPackage(packageName, version)
-        .then(pkg => {
-
-            console.info('Load', packageName, version)
-
-            pkg = removeExtraFields(pkg)
-            packageCache.set(packageKey, pkg)
-            return pkg
-        })
+    return getPackage(packageName, version)
+        .then(pkg => removeExtraFields(pkg))
         .catch(err => {
 
             console.error(packageName, version, err.message)
@@ -51,10 +34,6 @@ const loadPackage = (packageName, version) => {
                 description: err.message
             }
         })
-
-    packageCache.set(packageKey, loadPromise)
-
-    return loadPromise
 }
 
 /**
