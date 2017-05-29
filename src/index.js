@@ -26,7 +26,7 @@ const colors = [
 
 const loadDependencyGraph = (pkgToLoad) => {
 
-    ajaxJson(`npm/${pkgToLoad}`)
+    return ajaxJson(`npm/${pkgToLoad}`)
         .then(packagesTree => {
 
             const container = document.getElementById('npm-network')
@@ -71,13 +71,25 @@ const loadDependencyGraph = (pkgToLoad) => {
                     }
                 }
             })
+
+            return new Promise(function (resolve) {
+                network.on('stabilizationIterationsDone', resolve)
+            })
         })
 }
 
 const search = document.getElementById('search')
+const loader = document.querySelector('.loader')
+
+const toggleLoader = v => loader.style.display = v ? 'block' : 'none'
+
+toggleLoader(false)
 
 document.getElementById('submit')
     .addEventListener('click', e => {
         e.preventDefault()
+
+        toggleLoader(true)
         loadDependencyGraph(search.value)
+            .then(() => toggleLoader(false))
     })
