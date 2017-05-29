@@ -4,7 +4,7 @@ const _ = require('koa-route')
 const request = require('request-promise-native')
 const app = new Koa()
 
-const { pick } = require('ramda')
+const { pick, mapObjIndexed, curry, values, compose, map } = require('ramda')
 
 app.use(serve('./public'))
 
@@ -24,7 +24,7 @@ const packageCache = new Map()
 
 const loadPackage = (packageName, version = 'latest') => {
 
-    const nameAndVersion = `${packageName}/${version.replace(/[\^~>=]/, '')}`;
+    const nameAndVersion = `${packageName}/${version.replace(/[\^~>=]/, '')}`
 
     if (packageCache.has(nameAndVersion)) {
         const cachedPkg = packageCache.get(nameAndVersion)
@@ -52,22 +52,34 @@ const loadPackage = (packageName, version = 'latest') => {
         })
 }
 
+/**
+ * Transforms { react: '15.2.2', redux: '7.0.1' }
+ *
+ * to [{ name: 'react', version: '15.2.2' }, { name: 'redux', version: '7.0.1' }]
+ *
+ */
+const toDependenciesArray = compose(
+    values,
+    mapObjIndexed((version, name) => ({ name, version }))
+)
+
 const loadPackageWithDependencies = async (packageName, version, level = 0) => {
 
     const packageInfo = await loadPackage(packageName, version)
 
     packageInfo.level = level
 
-    packageInfo._dependencies = await Promise.all(Object.keys(packageInfo.dependencies || {})
-        .map(dependencyName => ({
-            name: dependencyName,
-            version: packageInfo.dependencies[dependencyName]
-        }))
-        .map(async dependency => {
+    if (packageInfo.dependencies) {
 
-            return await loadPackageWithDependencies(dependency.name, dependency.version, level + 1)
-        }))
+        const loadDependencies = compose(
+            Promise.all.bind(Promise),
+            map(dependency => loadPackageWithDependencies(dependency.name, dependency.version, level + 1)),
+            toDependenciesArray,
+            pkg => pkg.dependencies
+        )
 
+        packageInfo._dependencies = await loadDependencies(packageInfo)
+    }
 
     return packageInfo
 }
