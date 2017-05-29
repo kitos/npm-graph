@@ -77,4 +77,7 @@ const loadDependencyGraph = (pkgToLoad) => {
 const search = document.getElementById('search')
 
 document.getElementById('submit')
-    .addEventListener('click', () => loadDependencyGraph(search.value))
+    .addEventListener('click', e => {
+        e.preventDefault()
+        loadDependencyGraph(search.value)
+    })

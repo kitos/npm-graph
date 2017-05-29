@@ -12,14 +12,40 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .app-header {
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            background: #b4b4b4;
+        }
+
+        .title {
+            text-align: center;
+        }
+
+        .form {
+            display: flex;
+        }
+
+        #search,
+        #submit {
+            line-height: 28px;
         }
     </style>
 </head>
 <body>
-<div>
-    <input id="search">
-    <button id="submit">Load</button>
-</div>
+<header class="app-header">
+    <h1 class="title">npm-graph</h1>
+    <form class="form">
+        <input id="search" placeholder="Package name...">
+        <button id="submit">Show dependencies graph</button>
+    </form>
+</header>
 <div id="npm-network"></div>
 </body>
 </html>
