@@ -1,14 +1,5 @@
-import { ajaxJson } from './ajax'
 import vis from 'vis'
-import { normalize, schema } from 'normalizr'
-
-const packageScheme = new schema.Entity('package', {}, {
-    idAttribute: 'name'
-})
-
-packageScheme.define({
-    dependencies: [packageScheme]
-})
+import { getPackage } from './npm-client'
 
 const colors = [
     '#97C2FC',
@@ -41,10 +32,9 @@ const loadDependencyGraph = (pkgToLoad) => {
 
     toggleLoader(true)
 
-    return ajaxJson(`npm/${pkgToLoad}`)
-        .then(packagesTree => {
+    return getPackage(pkgToLoad)
+        .then(packagesMap => {
 
-            const packagesMap = normalize(packagesTree, packageScheme).entities.package
             const packages = Object.values(packagesMap)
             const maxLevel = packages.reduce((max, pkg) => Math.max(max, pkg.level), 0)
 
