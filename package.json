@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Nikita Kirsanov <kitos.kirsanov@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": "7.10.0"
+  },
   "scripts": {
     "postinstall": "webpack",
     "start": "node src/server.js",
