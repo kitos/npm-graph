@@ -24,14 +24,25 @@ const colors = [
     '#6E6EFD',
 ]
 
+const network = new vis.Network(
+    document.getElementById('npm-network'), {},
+    {
+        edges: {
+            arrows: {
+                to: {
+                    enabled: true,
+                    scaleFactor: .4,
+                },
+            }
+        }
+    })
+
 const loadDependencyGraph = (pkgToLoad) => {
 
     toggleLoader(true)
 
     return ajaxJson(`npm/${pkgToLoad}`)
         .then(packagesTree => {
-
-            const container = document.getElementById('npm-network')
 
             const packagesMap = normalize(packagesTree, packageScheme).entities.package
             const packages = Object.values(packagesMap)
@@ -59,29 +70,14 @@ const loadDependencyGraph = (pkgToLoad) => {
                 ).reduce((res, arr) => res.concat(arr), [])
             )
 
-            const network = new vis.Network(container, {
-                nodes: nodes,
-                edges: edges,
-                width: 1,
-            }, {
-                edges: {
-                    arrows: {
-                        to: {
-                            enabled: true,
-                            scaleFactor: .4,
-                        },
-                    }
-                }
+            network.setData({
+                nodes,
+                edges
             })
-
-            network.on('doubleClick', ({ nodes }) => nodes.length && loadDependencyGraph(nodes[0]))
-
-            return new Promise(function (resolve) {
-                network.on('stabilizationIterationsDone', resolve)
-            })
-                .then(() => toggleLoader(false))
         })
 }
+
+network.on('doubleClick', ({ nodes }) => nodes.length && loadDependencyGraph(nodes[0]))
 
 const search = document.getElementById('search')
 const loader = document.querySelector('.loader')
@@ -89,6 +85,7 @@ const loader = document.querySelector('.loader')
 const toggleLoader = v => loader.style.display = v ? 'block' : 'none'
 
 toggleLoader(false)
+network.on('stabilizationIterationsDone', () => toggleLoader(false))
 
 document.getElementById('submit')
     .addEventListener('click', e => {
