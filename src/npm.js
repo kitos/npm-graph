@@ -54,17 +54,22 @@ const loadPackageWithDependencies = async (packageName, version, requiredFields,
 
     packageInfo.level = level
 
+    const loadPackages = compose(
+        Promise.all.bind(Promise),
+        map(dependency => loadPackageWithDependencies(dependency.name, dependency.version, requiredFields, level + 1)),
+        toDependenciesArray
+    )
+
     if (packageInfo.dependencies
         && !Array.isArray(packageInfo.dependencies)) { // we have't loaded them yet
 
-        const loadDependencies = compose(
-            Promise.all.bind(Promise),
-            map(dependency => loadPackageWithDependencies(dependency.name, dependency.version, requiredFields, level + 1)),
-            toDependenciesArray,
-            pkg => pkg.dependencies
-        )
+        packageInfo.dependencies = await loadPackages(packageInfo.dependencies)
+    }
 
-        packageInfo.dependencies = await loadDependencies(packageInfo)
+    if (packageInfo.devDependencies
+        && !Array.isArray(packageInfo.devDependencies)) { // we have't loaded them yet
+
+        packageInfo.devDependencies = await loadPackages(packageInfo.devDependencies)
     }
 
     return packageInfo
