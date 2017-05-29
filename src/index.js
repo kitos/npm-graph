@@ -61,7 +61,16 @@ const loadDependencyGraph = (pkgToLoad) => {
                 nodes: nodes,
                 edges: edges,
                 width: 1,
-            }, {})
+            }, {
+                edges: {
+                    arrows: {
+                        to: {
+                            enabled: true,
+                            scaleFactor: .4,
+                        },
+                    }
+                }
+            })
         })
 }
 
