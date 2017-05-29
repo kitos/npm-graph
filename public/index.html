@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>WebPurple graph</title>
     <script defer src="./bundle.js" type="text/javascript"></script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
     <link rel="stylesheet" href="loader.css">
     <style>
         html, body,
@@ -23,6 +24,12 @@
             left: 0;
             padding: 20px;
             background: #b4b4b4;
+        }
+
+        .title-block {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
         }
 
         .title {
@@ -48,7 +55,10 @@
 </head>
 <body>
 <header class="app-header">
-    <h1 class="title">npm-graph</h1>
+    <div class="title-block">
+        <h1 class="title">npm-graph</h1>
+        <a class="github-button" href="https://github.com/kitos/npm-graph" data-icon="octicon-star" data-size="large" aria-label="Star kitos/npm-graph on GitHub">Star</a>
+    </div>
     <form class="form">
         <input id="search" placeholder="Package name...">
         <button id="submit">Show dependencies graph</button>
