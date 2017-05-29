@@ -12,9 +12,14 @@ packageScheme.define({
 
 const colors = [
     '#97C2FC',
+    '#663399',
+    '#E87E04',
+    '#26A65B',
     '#FB7E81',
     '#FFFF00',
     '#7BE141',
+    '#F7CA18',
+    '#2574A9',
     '#EB7DF4',
     '#6E6EFD',
 ]
@@ -28,13 +33,14 @@ const loadDependencyGraph = (pkgToLoad) => {
 
             const packagesMap = normalize(packagesTree, packageScheme).entities.package
             const packages = Object.values(packagesMap)
+            const maxLevel = packages.reduce((max, pkg) => Math.max(max, pkg.level), 0)
 
             const nodes = new vis.DataSet(packages.map((pkg, i) => ({
                 id: pkg.name,
                 label: pkg.name,
                 title: pkg.description,
                 shape: 'dot',
-                size: 15,
+                size: 40 * (maxLevel - pkg.level + 1) / 25,
                 color: colors[i % colors.length]
             })))
 

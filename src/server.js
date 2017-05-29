@@ -52,9 +52,11 @@ const loadPackage = (packageName, version = 'latest') => {
         })
 }
 
-const loadPackageWithDependencies = async (packageName, version) => {
+const loadPackageWithDependencies = async (packageName, version, level = 0) => {
 
     const packageInfo = await loadPackage(packageName, version)
+
+    packageInfo.level = level
 
     packageInfo._dependencies = await Promise.all(Object.keys(packageInfo.dependencies || {})
         .map(dependencyName => ({
@@ -63,7 +65,7 @@ const loadPackageWithDependencies = async (packageName, version) => {
         }))
         .map(async dependency => {
 
-            return await loadPackageWithDependencies(dependency.name, dependency.version)
+            return await loadPackageWithDependencies(dependency.name, dependency.version, level + 1)
         }))
 
 
