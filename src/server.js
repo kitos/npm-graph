@@ -1,10 +1,11 @@
 const Koa = require('koa')
 const serve = require('koa-static')
 const _ = require('koa-route')
-const request = require('request-promise-native')
 const app = new Koa()
 
 const { pick, mapObjIndexed, values, compose, map } = require('ramda')
+
+const { getPackage } = require('./npm')
 
 app.use(serve('./public'))
 
@@ -22,23 +23,23 @@ const removeExtraFields = pick([
 
 const packageCache = new Map()
 
-const loadPackage = (packageName, version = 'latest') => {
+const loadPackage = (packageName, version) => {
 
-    const nameAndVersion = `${packageName}/${version.replace(/[\^~>=]/, '')}`
+    const packageKey = packageName + version
 
-    if (packageCache.has(nameAndVersion)) {
-        const cachedPkg = packageCache.get(nameAndVersion)
+    if (packageCache.has(packageKey)) {
+        const cachedPkg = packageCache.get(packageKey)
 
         return cachedPkg.then ? cachedPkg : Promise.resolve(cachedPkg)
     }
 
-    return request('https://registry.npmjs.org/' + nameAndVersion, { json: true })
+    const loadPromise = getPackage(packageName, version)
         .then(pkg => {
 
             console.info('Load', packageName, version)
 
             pkg = removeExtraFields(pkg)
-            packageCache.set(nameAndVersion, pkg)
+            packageCache.set(packageKey, pkg)
             return pkg
         })
         .catch(err => {
@@ -50,6 +51,10 @@ const loadPackage = (packageName, version = 'latest') => {
                 description: err.message
             }
         })
+
+    packageCache.set(packageKey, loadPromise)
+
+    return loadPromise
 }
 
 /**
