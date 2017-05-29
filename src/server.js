@@ -78,7 +78,7 @@ const loadPackageWithDependencies = async (packageName, version, level = 0) => {
             pkg => pkg.dependencies
         )
 
-        packageInfo._dependencies = await loadDependencies(packageInfo)
+        packageInfo.dependencies = await loadDependencies(packageInfo)
     }
 
     return packageInfo

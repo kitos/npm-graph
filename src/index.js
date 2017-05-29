@@ -7,7 +7,7 @@ const packageScheme = new schema.Entity('package', {}, {
 })
 
 packageScheme.define({
-    _dependencies: [packageScheme]
+    dependencies: [packageScheme]
 })
 
 const colors = [
@@ -45,11 +45,15 @@ const loadDependencyGraph = (pkgToLoad) => {
             })))
 
             const edges = new vis.DataSet(packages
-                .map((pkg, i) => pkg._dependencies && pkg._dependencies.map(dependencyKey => ({
+                .map((pkg, i) => pkg.dependencies
+
+                    ? pkg.dependencies.map(dependencyKey => ({
                         from: pkg.name,
                         to: packagesMap[dependencyKey].name,
                         color: colors[i % colors.length]
-                    })) || []
+                    }))
+
+                    : []
                 ).reduce((res, arr) => res.concat(arr), [])
             )
 
