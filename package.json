@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "webpack",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "echo 'nothing to test yet'"
   },
   "dependencies": {
     "koa": "^2.2.0",
