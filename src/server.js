@@ -4,7 +4,7 @@ const _ = require('koa-route')
 const request = require('request-promise-native')
 const app = new Koa()
 
-const { pick, mapObjIndexed, curry, values, compose, map } = require('ramda')
+const { pick, mapObjIndexed, values, compose, map } = require('ramda')
 
 app.use(serve('./public'))
 
@@ -69,7 +69,8 @@ const loadPackageWithDependencies = async (packageName, version, level = 0) => {
 
     packageInfo.level = level
 
-    if (packageInfo.dependencies) {
+    if (packageInfo.dependencies
+        && !Array.isArray(packageInfo.dependencies)) { // we have't loaded them yet
 
         const loadDependencies = compose(
             Promise.all.bind(Promise),
