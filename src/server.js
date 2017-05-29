@@ -18,4 +18,4 @@ app.use(_.get('/npm/:package/:version?', async (ctx, packageName, version) => {
     ])
 }))
 
-app.listen(3000, () => console.info('Server started.'))
+app.listen(process.env.PORT || 3000, () => console.info('Server started.'))
