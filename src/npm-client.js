@@ -1,5 +1,5 @@
 import { normalize, schema } from 'normalizr'
-import { compose, values, __, curry, path } from 'ramda';
+import { pipe, values, __, curry, path } from 'ramda';
 import { ajaxJson } from './ajax'
 
 const packageScheme = new schema.Entity('package', {}, {
@@ -12,8 +12,8 @@ packageScheme.define({
 
 export const getPackage = pkgToLoad => ajaxJson(`npm/${pkgToLoad}`)
 
-    .then(compose(
-        values,
+    .then(pipe(
+        curry(normalize)(__, packageScheme),
         path(['entities', 'package']),
-        curry(normalize)(__, packageScheme)
+        values
     ))

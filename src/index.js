@@ -1,6 +1,6 @@
 import vis from 'vis'
 import {
-    compose,
+    pipe,
     map,
     reduce,
     max,
@@ -26,17 +26,17 @@ const network = new vis.Network(
         }
     })
 
-const maxLevel = compose(
-    reduce(max, 0),
-    map(prop('level'))
+const maxLevel = pipe(
+    map(prop('level')),
+    reduce(max, 0)
 )
 
 const edge = curry((from, to) => ({ from, to }))
 
-const edges = compose(
-    unnest,
+const edges = pipe(
+    filter(has('dependencies')),
     map(pkg => map(edge(pkg.name), pkg.dependencies)),
-    filter(has('dependencies'))
+    unnest
 )
 
 const colors = [
