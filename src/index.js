@@ -62,6 +62,10 @@ const nodes = addIndex(map)((pkg, i, packages) => ({
     color: colors[i % colors.length]
 }))
 
+const toggleLoader = v => loader.style.display = v ? 'block' : 'none'
+
+network.on('stabilizationIterationsDone', () => toggleLoader(false))
+
 const loadDependencyGraph = (pkgToLoad) => {
 
     toggleLoader(true)
@@ -80,10 +84,7 @@ network.on('doubleClick', ({ nodes }) => nodes.length && loadDependencyGraph(nod
 const search = document.getElementById('search')
 const loader = document.querySelector('.loader')
 
-const toggleLoader = v => loader.style.display = v ? 'block' : 'none'
-
-toggleLoader(false)
-network.on('stabilizationIterationsDone', () => toggleLoader(false))
+loadDependencyGraph('react')
 
 document.getElementById('submit')
     .addEventListener('click', e => {
