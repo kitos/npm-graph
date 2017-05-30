@@ -1,5 +1,43 @@
 import vis from 'vis'
+import {
+    compose,
+    map,
+    reduce,
+    max,
+    prop,
+    filter,
+    has,
+    unnest,
+    curry,
+    addIndex
+} from 'ramda'
 import { getPackage } from './npm-client'
+
+const network = new vis.Network(
+    document.getElementById('npm-network'), {},
+    {
+        edges: {
+            arrows: {
+                to: {
+                    enabled: true,
+                    scaleFactor: .4,
+                },
+            }
+        }
+    })
+
+const maxLevel = compose(
+    reduce(max, 0),
+    map(prop('level'))
+)
+
+const edge = curry((from, to) => ({ from, to }))
+
+const edges = compose(
+    unnest,
+    map(pkg => map(edge(pkg.name), pkg.dependencies)),
+    filter(has('dependencies'))
+)
 
 const colors = [
     '#97C2FC',
@@ -15,56 +53,26 @@ const colors = [
     '#6E6EFD',
 ]
 
-const network = new vis.Network(
-    document.getElementById('npm-network'), {},
-    {
-        edges: {
-            arrows: {
-                to: {
-                    enabled: true,
-                    scaleFactor: .4,
-                },
-            }
-        }
-    })
+const nodes = addIndex(map)((pkg, i, packages) => ({
+    id: pkg.name,
+    label: pkg.name,
+    title: pkg.description,
+    shape: 'dot',
+    size: 40 * (maxLevel(packages) - pkg.level + 1) / 25,
+    color: colors[i % colors.length]
+}))
 
 const loadDependencyGraph = (pkgToLoad) => {
 
     toggleLoader(true)
 
     return getPackage(pkgToLoad)
-        .then(packagesMap => {
 
-            const packages = Object.values(packagesMap)
-            const maxLevel = packages.reduce((max, pkg) => Math.max(max, pkg.level), 0)
+        .then(packages => network.setData({
 
-            const nodes = new vis.DataSet(packages.map((pkg, i) => ({
-                id: pkg.name,
-                label: pkg.name,
-                title: pkg.description,
-                shape: 'dot',
-                size: 40 * (maxLevel - pkg.level + 1) / 25,
-                color: colors[i % colors.length]
-            })))
-
-            const edges = new vis.DataSet(packages
-                .map((pkg, i) => pkg.dependencies
-
-                    ? pkg.dependencies.map(dependencyKey => ({
-                        from: pkg.name,
-                        to: packagesMap[dependencyKey].name,
-                        color: colors[i % colors.length]
-                    }))
-
-                    : []
-                ).reduce((res, arr) => res.concat(arr), [])
-            )
-
-            network.setData({
-                nodes,
-                edges
-            })
-        })
+            nodes: new vis.DataSet(nodes(packages)),
+            edges: new vis.DataSet(edges(packages)),
+        }))
 }
 
 network.on('doubleClick', ({ nodes }) => nodes.length && loadDependencyGraph(nodes[0]))
