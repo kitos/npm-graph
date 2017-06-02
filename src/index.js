@@ -13,7 +13,7 @@ import {
     when,
     head,
     isNil,
-    complement
+    complement, tap
 } from 'ramda'
 import { DOM } from 'rx-lite-dom-events'
 import { getPackage } from './npm-client'
@@ -21,6 +21,9 @@ import { getPackage } from './npm-client'
 const network = new vis.Network(
     document.getElementById('npm-network'), {},
     {
+        physics: {
+            stabilization: false,
+        },
         edges: {
             arrows: {
                 to: {
@@ -71,13 +74,13 @@ const loader = document.querySelector('.loader')
 
 const toggleLoader = v => loader.style.display = v ? 'block' : 'none'
 
-network.on('stabilizationIterationsDone', () => toggleLoader(false))
-
 const loadDependencyGraph = (pkgToLoad) => {
 
     toggleLoader(true)
 
     return getPackage(pkgToLoad)
+
+        .then(tap(() => toggleLoader(false)))
 
         .then(packages => {
 
