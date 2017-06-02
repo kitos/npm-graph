@@ -9,7 +9,11 @@ import {
     has,
     unnest,
     curry,
-    addIndex
+    addIndex,
+    when,
+    head,
+    isNil,
+    complement
 } from 'ramda'
 import { DOM } from 'rx-lite-dom-events'
 import { getPackage } from './npm-client'
@@ -63,6 +67,8 @@ const nodes = addIndex(map)((pkg, i, packages) => ({
     color: colors[i % colors.length]
 }))
 
+const loader = document.querySelector('.loader')
+
 const toggleLoader = v => loader.style.display = v ? 'block' : 'none'
 
 network.on('stabilizationIterationsDone', () => toggleLoader(false))
@@ -80,11 +86,15 @@ const loadDependencyGraph = (pkgToLoad) => {
         }))
 }
 
-network.on('doubleClick', ({ nodes }) => nodes.length && loadDependencyGraph(nodes[0]))
+const isNotNil = complement(isNil)
 
-const loader = document.querySelector('.loader')
-
-loadDependencyGraph('react')
+network.on('doubleClick',
+    pipe(
+        prop('nodes'), // selected nodes
+        head,
+        when(isNotNil, loadDependencyGraph)
+    )
+)
 
 DOM.submit(document.querySelector('.form'))
     .map(e => {
@@ -96,3 +106,5 @@ DOM.submit(document.querySelector('.form'))
     .filter(text => text.length)
     .distinctUntilChanged()
     .subscribe(loadDependencyGraph)
+
+loadDependencyGraph('react')
