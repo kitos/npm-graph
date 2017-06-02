@@ -17,11 +17,15 @@
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
-        .app-header {
+        .menu {
             position: fixed;
             z-index: 1;
             top: 0;
             left: 0;
+            border: 1px solid #b4b4b4;
+        }
+
+        .app-header {
             padding: 20px;
             background: #b4b4b4;
         }
@@ -45,6 +49,19 @@
             line-height: 28px;
         }
 
+        table {
+            width: 100%;
+            background: #fff;
+        }
+
+        td {
+            padding: 2px 10px;
+        }
+
+        td:first-child {
+            font-weight: bold;
+        }
+
         .loader {
             position: fixed;
             top: calc(50% - 110px);
@@ -54,16 +71,23 @@
     </style>
 </head>
 <body>
-<header class="app-header">
-    <div class="title-block">
-        <h1 class="title">npm-graph</h1>
-        <a class="github-button" href="https://github.com/kitos/npm-graph" data-size="large" data-show-count="true" aria-label="Star kitos/npm-graph on GitHub">Star</a>
-    </div>
-    <form class="form">
-        <input id="search" placeholder="Package name...">
-        <button id="submit">Show dependencies graph</button>
-    </form>
-</header>
+<section class="menu">
+    <header class="app-header">
+        <div class="title-block">
+            <h1 class="title">npm-graph</h1>
+            <a class="github-button" href="https://github.com/kitos/npm-graph" data-size="large" data-show-count="true" aria-label="Star kitos/npm-graph on GitHub">Star</a>
+        </div>
+        <form class="form">
+            <input id="search" placeholder="Package name...">
+            <button id="submit">Show dependencies graph</button>
+        </form>
+    </header>
+    <table>
+        <tr><td>Name</td><td><a id="pkg-link"></a></td></tr>
+        <tr><td>Nodes</td><td id="pkg-nodes"></td></tr>
+        <tr><td>Edges</td><td id="pkg-edges"></td></tr>
+    </table>
+</section>
 <div class="loader"></div>
 <div id="npm-network"></div>
 </body>

@@ -13,6 +13,7 @@ app.use(_.get('/npm/:package/:version?', async (ctx, packageName, version) => {
     ctx.body = await loadPackageWithDependencies(packageName, version, [
         'name',
         'description',
+        'homepage',
         'dependencies',
         'version'
     ])

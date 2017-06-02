@@ -79,11 +79,27 @@ const loadDependencyGraph = (pkgToLoad) => {
 
     return getPackage(pkgToLoad)
 
-        .then(packages => network.setData({
+        .then(packages => {
 
-            nodes: new vis.DataSet(nodes(packages)),
-            edges: new vis.DataSet(edges(packages)),
-        }))
+            const graphNodes = nodes(packages)
+            const graphEdges = edges(packages)
+
+            network.setData({
+
+                nodes: new vis.DataSet(graphNodes),
+                edges: new vis.DataSet(graphEdges),
+            })
+
+            const pkg = packages.find(pkg => pkg.name === pkgToLoad)
+
+            const pkgLink = document.getElementById('pkg-link')
+            pkgLink.textContent = `${pkg.name}@${pkg.version}`
+            pkgLink.setAttribute('title', pkg.description)
+            pkgLink.setAttribute('href', pkg.homepage)
+
+            document.getElementById('pkg-nodes').textContent = graphNodes.length
+            document.getElementById('pkg-edges').textContent = graphEdges.length
+        })
 }
 
 const isNotNil = complement(isNil)
