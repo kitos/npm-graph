@@ -21,6 +21,7 @@
     "ramda": "^0.24.0",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4",
+    "rx-lite-dom-events": "^7.0.3",
     "vis": "^4.20.0"
   },
   "devDependencies": {

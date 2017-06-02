@@ -11,6 +11,7 @@ import {
     curry,
     addIndex
 } from 'ramda'
+import { DOM } from 'rx-lite-dom-events'
 import { getPackage } from './npm-client'
 
 const network = new vis.Network(
@@ -81,14 +82,17 @@ const loadDependencyGraph = (pkgToLoad) => {
 
 network.on('doubleClick', ({ nodes }) => nodes.length && loadDependencyGraph(nodes[0]))
 
-const search = document.getElementById('search')
 const loader = document.querySelector('.loader')
 
 loadDependencyGraph('react')
 
-document.getElementById('submit')
-    .addEventListener('click', e => {
+DOM.submit(document.querySelector('.form'))
+    .map(e => {
         e.preventDefault()
 
-        loadDependencyGraph(search.value)
+        return document.getElementById('search')
     })
+    .pluck('value')
+    .filter(text => text.length)
+    .distinctUntilChanged()
+    .subscribe(loadDependencyGraph)
